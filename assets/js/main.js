@@ -1,12 +1,17 @@
+var gender = "both";
+var sumOfCountry = 0;
+var lengthOfCountry = 0;
+var isSameCountry = true;
+var nameOfCountry = "";
+const IHME_CSV = "IHME_GBD_2013_OBESITY_PREVALENCE_1990_2013_Y2014M10D08.csv"
+
 $(document).ready(function(){
 
-  $('body').append(`<select id="state-select">
-                      <option value="all" selected>All</option>
+  $('body').append(`<select id="gender-change">
+                      <option value="both" selected>All</option>
                       <option value="male">Male</option>
                       <option value="female">Female</option>
                     </select>`)
-
-  const IHME_CSV = "IHME_GBD_2013_OBESITY_PREVALENCE_1990_2013_Y2014M10D08.csv"
   d3.csv(IHME_CSV, function(err, data) {
     var config = {"data0":"location_name","data1":"mean",
                 "label0":"label 0","label1":"label 1","color0":"#99ccff","color1":"#0050A1",
@@ -113,26 +118,7 @@ $(document).ready(function(){
       return Math.log(val);
     }
 
-    console.log(data);
-
-    let sumOfCountry = 0;
-    let lengthOfCountry = 0;
-    let isSameCountry = true;
-    let nameOfCountry;
-    data.forEach(function(d,i) {
-      i == 0 ? nameOfCountry = d[MAP_KEY] : null;
-      if(nameOfCountry != d[MAP_KEY] || i == data.length - 1){
-        valueHash[nameOfCountry] = sumOfCountry / lengthOfCountry;
-        nameOfCountry = d[MAP_KEY];
-        lengthOfCountry = 1;
-        sumOfCountry = parseFloat(d[MAP_VALUE]);
-      }
-      else {
-        lengthOfCountry++;
-        sumOfCountry += parseFloat(d[MAP_VALUE]);
-      }
-      // valueHash[d[MAP_KEY]] = +d[MAP_VALUE];
-    });
+    loadingData();
 
     var quantize = d3.scale.quantize()
         .domain([0, 1.0])
@@ -249,10 +235,56 @@ $(document).ready(function(){
     });
 
     d3.select(self.frameElement).style("height", (height * 2.3 / 3) + "px");
+
+    function selectGenderOption(){
+      $('#gender-change').on('change', function() {
+        gender = this.value;
+        loadingData();
+      })
+    }
+    function loadingData(){
+      data.forEach(function(d,i) {
+        i == 0 ? nameOfCountry = d[MAP_KEY] : null;
+        if(gender === "both"){
+          if(nameOfCountry != d[MAP_KEY] || i == data.length - 1){
+            valueHash[nameOfCountry] = sumOfCountry / lengthOfCountry;
+            nameOfCountry = d[MAP_KEY];
+            lengthOfCountry = 1;
+            sumOfCountry = parseFloat(d[MAP_VALUE]);
+          }
+          else if (d.sex === "both"){
+            lengthOfCountry++;
+            sumOfCountry += parseFloat(d[MAP_VALUE]);
+          }
+        }
+        else if(gender === "female"){
+          if(nameOfCountry != d[MAP_KEY] || i == data.length - 1){
+            valueHash[nameOfCountry] = sumOfCountry / lengthOfCountry;
+            nameOfCountry = d[MAP_KEY];
+            lengthOfCountry = 1;
+            sumOfCountry = parseFloat(d[MAP_VALUE]);
+          }
+          else if (d.sex === "female"){
+            lengthOfCountry++;
+            sumOfCountry += parseFloat(d[MAP_VALUE]);
+          }
+        }
+        else if(gender === 'male'){
+          if(nameOfCountry != d[MAP_KEY] || i == data.length - 1){
+            valueHash[nameOfCountry] = sumOfCountry / lengthOfCountry;
+            nameOfCountry = d[MAP_KEY];
+            lengthOfCountry = 1;
+            sumOfCountry = parseFloat(d[MAP_VALUE]);
+          }
+          else if (d.sex === "male"){
+            lengthOfCountry++;
+            sumOfCountry += parseFloat(d[MAP_VALUE]);
+          }
+        }
+        // valueHash[d[MAP_KEY]] = +d[MAP_VALUE];
+      });
+    }
+    selectGenderOption();
   });
 
 })
-
-function selectGenderOption(){
-
-}

@@ -113,8 +113,25 @@ $(document).ready(function(){
       return Math.log(val);
     }
 
-    data.forEach(function(d) {
-      valueHash[d[MAP_KEY]] = +d[MAP_VALUE];
+    console.log(data);
+
+    let sumOfCountry = 0;
+    let lengthOfCountry = 0;
+    let isSameCountry = true;
+    let nameOfCountry;
+    data.forEach(function(d,i) {
+      i == 0 ? nameOfCountry = d[MAP_KEY] : null;
+      if(nameOfCountry != d[MAP_KEY] || i == data.length - 1){
+        valueHash[nameOfCountry] = sumOfCountry / lengthOfCountry;
+        nameOfCountry = d[MAP_KEY];
+        lengthOfCountry = 1;
+        sumOfCountry = parseFloat(d[MAP_VALUE]);
+      }
+      else {
+        lengthOfCountry++;
+        sumOfCountry += parseFloat(d[MAP_VALUE]);
+      }
+      // valueHash[d[MAP_KEY]] = +d[MAP_VALUE];
     });
 
     var quantize = d3.scale.quantize()
@@ -128,6 +145,34 @@ $(document).ready(function(){
 
     d3.json("https://s3-us-west-2.amazonaws.com/vida-public/geo/world-topo-min.json", function(error, world) {
       var countries = topojson.feature(world, world.objects.countries).features;
+      countries.map((country,index) => {
+        switch(country.properties.name){
+          case "Russian Federation":
+            countries[index].properties.name = "Russia"
+            break;
+          case "Bolivia, Plurinational State of":
+            countries[index].properties.name = "Bolivia"
+            break;
+          case "Democratic Republic of Congo":
+            countries[index].properties.name = "Democratic Republic of the Congo"
+            break;
+          case "Côte d'Ivoire":
+            countries[index].properties.name = "Cote d'Ivoire"
+            break;
+          case "Viet Nam":
+            countries[index].properties.name = "Vietnam"
+            break;
+          case "Lao People's Democratic Republic":
+            countries[index].properties.name = "Laos"
+            break;
+          case "Syrian Arab Republic":
+            countries[index].properties.name = "Syria"
+            break;
+          case "Viet Nam":
+            countries[index].properties.name = "Vietnam"
+            break;
+        }
+      })
 
       svg.append("path")
          .datum(graticule)

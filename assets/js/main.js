@@ -4,7 +4,7 @@ var lengthOfCountry = 0;
 var isSameCountry = true;
 var nameOfCountry = "";
 var colors = [];
-const IHME_CSV = "assets/data/IHME_GBD_2013_OBESITY_PREVALENCE_1990_2013_Y2014M10D08.csv";
+const IHME_CSV = "assets/data/IHME_GBD.csv";
 
 $(document).ready(function(){
   d3.csv(IHME_CSV, function(err, data) {

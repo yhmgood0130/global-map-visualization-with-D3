@@ -7,12 +7,6 @@ var colors = [];
 const IHME_CSV = "IHME_GBD_2013_OBESITY_PREVALENCE_1990_2013_Y2014M10D08.csv"
 
 $(document).ready(function(){
-
-  $('body').append(`<select id="gender-change">
-                      <option value="both" selected>All</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                    </select>`)
   d3.csv(IHME_CSV, function(err, data) {
     var config = {"data0":"location_name","data1":"mean",
                 "label0":"label 0","label1":"label 1","color0":"#a7faad","color1":"#0d6613",
@@ -62,6 +56,10 @@ $(document).ready(function(){
 
     loadingData();
 
+    var quantize = d3.scale.quantize()
+        .domain([0, 1.0])
+        .range(d3.range(COLOR_COUNTS).map(function(i) { return i }));
+
     getMap();
 
     d3.select(self.frameElement).style("height", (height * 2.3 / 3) + "px");
@@ -71,7 +69,7 @@ $(document).ready(function(){
         gender = this.value;
         loadingData();
         mapColor();
-        getMap();
+        colorChange();
       })
     }
     function loadingData(){
@@ -93,8 +91,8 @@ $(document).ready(function(){
       var COLOR_FIRST, COLOR_LAST;
       switch(gender){
         case "both":
-        COLOR_FIRST = "#cfffbd",
-        COLOR_LAST = "#145725"
+          COLOR_FIRST = "#cfffbd",
+          COLOR_LAST = "#145725"
           break;
         case "male":
           COLOR_FIRST = "#bdd9ff",
@@ -152,11 +150,19 @@ $(document).ready(function(){
         colors.push(new Color(r, g, b));
       }
     }
+    function colorChange(){
+      d3.selectAll(".country").style("fill", function(d) {
+            if (valueHash[d.properties.name]) {
+              var c = quantize((valueHash[d.properties.name]));
+              var color = colors[c].getColors();
+              return "rgb(" + color.r + "," + color.g +
+                  "," + color.b + ")";
+            } else {
+              return "#ccc";
+            }
+          })
+    }
     function getMap(){
-      var quantize = d3.scale.quantize()
-          .domain([0, 1.0])
-          .range(d3.range(COLOR_COUNTS).map(function(i) { return i }));
-
       quantize.domain([d3.min(data, function(d){
           return (+d[MAP_VALUE]) }),
         d3.max(data, function(d){
@@ -262,6 +268,23 @@ $(document).ready(function(){
             .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
             .attr("class", "boundary")
             .attr("d", path);
+
+            var zoom = d3.behavior.zoom()
+                .scaleExtent([1, 50])
+                .on("zoom", function() {
+                  var e = d3.event,
+
+                  tx = Math.min(0, Math.max(e.translate[0], width - width * e.scale)),
+                  ty = Math.min(0, Math.max(e.translate[1], height - height * e.scale));
+
+                  zoom.translate([tx, ty]);
+                  g.attr("transform", [
+                    "translate(" + [tx, ty] + ")",
+                    "scale(" + e.scale + ")"
+                  ].join(" "));
+            });
+
+        svg.call(zoom)
 
         svg.attr("height", config.height * 2.2 / 3);
       });

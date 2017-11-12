@@ -74,14 +74,20 @@ $(document).ready(function(){
     }
     function loadingData(){
       data.forEach(function(d,i) {
+        let sum = 0;
         i == 0 ? nameOfCountry = d[MAP_KEY] : null;
           if(nameOfCountry != d[MAP_KEY] || i == data.length - 1){
-            valueHash[nameOfCountry] = sumOfCountry / lengthOfCountry;
+            sum = sumOfCountry / lengthOfCountry * 100;
+            valueHash[nameOfCountry] = sum.toFixed(1);
             nameOfCountry = d[MAP_KEY];
             lengthOfCountry = 1;
-            sumOfCountry = parseFloat(d[MAP_VALUE]);
+            if(d.metric === "obese"){
+              sumOfCountry = parseFloat(d[MAP_VALUE]);
+            } else {
+              sumOfCountry = 0;
+            }
           }
-          else if (d.sex === gender){
+          else if (d.sex === gender && d.metric === "obese"){
             lengthOfCountry++;
             sumOfCountry += parseFloat(d[MAP_VALUE]);
           }
@@ -164,9 +170,9 @@ $(document).ready(function(){
     }
     function getMap(){
       quantize.domain([d3.min(data, function(d){
-          return (+d[MAP_VALUE]) }),
+          return (+d[MAP_VALUE] * 100) }),
         d3.max(data, function(d){
-          return (+d[MAP_VALUE]) })]);
+          return (+d[MAP_VALUE] * 100) })]);
       d3.json("https://s3-us-west-2.amazonaws.com/vida-public/geo/world-topo-min.json", function(error, world) {
         var countries = topojson.feature(world, world.objects.countries).features;
         countries.map((country,index) => {
@@ -235,7 +241,7 @@ $(document).ready(function(){
                 html += d.properties.name;
                 html += "</span>";
                 html += "<span class=\"tooltip_value\">";
-                html += (valueHash[d.properties.name] ? valueHash[d.properties.name] : "");
+                html += (valueHash[d.properties.name] ? valueHash[d.properties.name] + "%" : "");
                 html += "";
                 html += "</span>";
                 html += "</div>";

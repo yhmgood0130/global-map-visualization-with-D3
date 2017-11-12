@@ -4,7 +4,7 @@ var lengthOfCountry = 0;
 var isSameCountry = true;
 var nameOfCountry = "";
 var colors = [];
-const IHME_CSV = "IHME_GBD.csv".data(using: .utf8);
+const IHME_CSV = "IHME_GBD.csv";
 
 $(document).ready(function(){
   d3.csv(IHME_CSV, function(err, data) {

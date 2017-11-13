@@ -4,10 +4,10 @@ var lengthOfCountry = 0;
 var isSameCountry = true;
 var nameOfCountry = "";
 var colors = [];
-// const IHME_CSV = "IHME_GBD_2013_OBESITY_PREVALENCE_1990_2013_Y2014M10D08.csv";
+const IHME_CSV = "https://raw.githubusercontent.com/yhmgood0130/visualization-with-D3/master/assets/data/IHME_GBD_2013_OBESITY_PREVALENCE_1990_2013_Y2014M10D08.CSV";
 
 $(document).ready(function(){
-  d3.csv("IHME_GBD_2013_OBESITY_PREVALENCE_1990_2013_Y2014M10D08.csv", function(err, data) {
+  d3.csv(IHME_CSV, function(err, data) {
     var config = {"data0":"location_name","data1":"mean",
                 "label0":"label 0","label1":"label 1","color0":"#a7faad","color1":"#0d6613",
                 "width":1024,"height":1024}

@@ -4,7 +4,7 @@
 
 ## Deployed Site
 
-https://yhmgood0130.github.io./
+https://ihme-obese-data-visualiz-edfe2.firebaseapp.com/
 
 ## User Story
 
